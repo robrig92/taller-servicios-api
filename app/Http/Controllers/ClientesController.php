@@ -37,18 +37,8 @@ class ClientesController extends Controller
             'email',
             'empresa_id'
         ]);
-        
-        if (!isset($request->direccion)) {
-            $args['direccion'] = '';
-        }
 
-        if (!isset($request->nombreComercial)) {
-            $args['nombreComercial'] = '';
-        }
-
-        $args['hashId'] = HashHelper::hashId();
-        $args['enabled'] = 1;
-
+        $args = $this->setDefaults($request, $args);
         $cliente = Cliente::create($args);
 
         return HttpResponse::created(compact('cliente'));
@@ -77,21 +67,7 @@ class ClientesController extends Controller
             return HttpResponse::notFound();
         }
 
-        $cliente->email = $request->email;
-        $cliente->telefono = $request->telefono;
-        $cliente->direccion = $request->direccion;
-        $cliente->empresa_id = $request->empresa_id;
-        $cliente->nombreContacto = $request->nombreContacto;
-        $cliente->nombreComercial = $request->nombreComercial;
-
-        if (!isset($request->direccion)) {
-            $cliente->direccion = '';
-        }
-
-        if (!isset($request->nombreComercial)) {
-            $cliente->nombreComercial = '';
-        }
-
+        $cliente = $this->setUpdatedValues($request, $cliente);
         $cliente->save();
 
         return HttpResponse::ok(compact('cliente'));
@@ -107,10 +83,52 @@ class ClientesController extends Controller
             return HttpResponse::notFound();
         }
 
-        $cliente->enabled = 0;
-
+        $cliente->setDisabled();
         $cliente->save();
 
         return HttpResponse::ok(compact('cliente'));
+    }
+
+    public function setUpdatedValues($request, $cliente)
+    {
+        $cliente->email = $request->email;
+        $cliente->telefono = $request->telefono;
+        $cliente->direccion = $request->direccion;
+        $cliente->empresa_id = $request->empresa_id;
+        $cliente->nombreContacto = $request->nombreContacto;
+        $cliente->nombreComercial = $request->nombreComercial;
+        $cliente = $this->setDefaultsForUpdate($request, $cliente);
+
+        return $cliente;
+    }
+
+    public function setDefaultsForStore($request, $cliente)
+    {
+        $cliente = $this->setDefaults($request, $cliente);
+
+        $cliente['hashId'] = HashHelper::hashId();
+        $cliente['enabled'] = 1;
+
+        return $cliente;
+    }
+
+    public function setDefaultsForUpdate($request, $cliente)
+    {
+        $cliente = $this->setDefaults($request, $cliente);
+
+        return $cliente;
+    }
+
+    public function setDefaults($request, $cliente)
+    {
+        if (!isset($request->direccion)) {
+            is_array($cliente) ? $cliente['direccion'] = '' : $cliente->direccion = '';
+        }
+
+        if (!isset($request->nombreComercial)) {
+            is_array($cliente) ? $cliente['nombreComercial'] = '' : $cliente->nombreComercial = '';
+        }
+
+        return $cliente;
     }
 }

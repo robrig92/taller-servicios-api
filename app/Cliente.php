@@ -50,4 +50,9 @@ class Cliente extends Model
     {
         return $this->belongsTo(Empresa::class);
     }
+
+    public function setDisabled()
+    {
+        $this->enabled = 0;
+    }
 }
