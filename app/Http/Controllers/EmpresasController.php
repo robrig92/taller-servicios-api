@@ -60,8 +60,6 @@ class EmpresasController extends Controller
             return HttpResponse::notFound();
         }
 
-        \Log::debug($empresa);
-
         $empresa = $this->setUpdatedValues($request, $empresa);
         $empresa = $this->setDefaultValues($request, $empresa);
         $empresa->save();
