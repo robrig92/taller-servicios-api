@@ -35,14 +35,7 @@ class EmpresasController extends Controller
             'email'
         ]);
 
-        if (!isset($args['razonSocial'])) {
-            $args['razonSocial'] = '';
-        }
-
-        if (!isset($args['direccion'])) {
-            $args['direccion'] = '';
-        }
-
+        $args = $this->setDefaultValues($request, $args);
         $empresa = Empresa::create($args);
 
         return HttpResponse::created(compact('empresa'));
@@ -67,20 +60,10 @@ class EmpresasController extends Controller
             return HttpResponse::notFound();
         }
 
-        $empresa->email = $request->email;
-        $empresa->nombre = $request->nombre;
-        $empresa->telefono = $request->telefono;
-        $empresa->direccion = $request->direccion;
-        $empresa->razonSocial = $request->razonSocial;
+        \Log::debug($empresa);
 
-        if (!isset($request->razonSocial)) {
-            $empresa->razonSocial = '';
-        }
-
-        if (!isset($request->direccion)) {
-            $empresa->direccion = '';
-        }
-        
+        $empresa = $this->setUpdatedValues($request, $empresa);
+        $empresa = $this->setDefaultValues($request, $empresa);
         $empresa->save();
 
         return HttpResponse::ok(compact('empresa'));
@@ -94,10 +77,33 @@ class EmpresasController extends Controller
             return HttpResponse::notFound();
         }
 
-        $empresa->enabled = 0;
-
+        $empresa->setDisabled();
         $empresa->save();
 
         return HttpResponse::ok(compact('empresa'));
+    }
+
+    public function setDefaultValues($request, $empresa)
+    {
+        if (!isset($request->razonSocial)) {
+            is_array($empresa) ? $empresa['razonSocial'] = '' : $empresa->razonSocial = '';
+        }
+
+        if (!isset($request->direccion)) {
+            is_array($empresa) ? $empresa['direccion'] = '' : $empresa->direccion = '';
+        }
+
+        return $empresa;
+    }
+
+    public function setUpdatedValues($request, $empresa)
+    {
+        $empresa->email = $request->email;
+        $empresa->nombre = $request->nombre;
+        $empresa->telefono = $request->telefono;
+        $empresa->direccion = $request->direccion;
+        $empresa->razonSocial = $request->razonSocial;
+
+        return $empresa;
     }
 }

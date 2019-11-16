@@ -38,7 +38,7 @@ class ClientesController extends Controller
             'empresa_id'
         ]);
 
-        $args = $this->setDefaults($request, $args);
+        $args = $this->setDefaultsForStore($request, $args);
         $cliente = Cliente::create($args);
 
         return HttpResponse::created(compact('cliente'));
@@ -68,6 +68,7 @@ class ClientesController extends Controller
         }
 
         $cliente = $this->setUpdatedValues($request, $cliente);
+        $cliente = $this->setDefaultsForUpdate($request, $cliente);
         $cliente->save();
 
         return HttpResponse::ok(compact('cliente'));
@@ -97,7 +98,6 @@ class ClientesController extends Controller
         $cliente->empresa_id = $request->empresa_id;
         $cliente->nombreContacto = $request->nombreContacto;
         $cliente->nombreComercial = $request->nombreComercial;
-        $cliente = $this->setDefaultsForUpdate($request, $cliente);
 
         return $cliente;
     }
