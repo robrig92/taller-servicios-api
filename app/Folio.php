@@ -104,4 +104,14 @@ class Folio extends Model
     {
         return $this->belongsTo(\App\User::class, 'asignadoA');
     }
+
+    /**
+     * Disable the resource.
+     *
+     * @return void
+     */
+    public function setDisabled()
+    {
+        $this->activo = 0;
+    }
 }

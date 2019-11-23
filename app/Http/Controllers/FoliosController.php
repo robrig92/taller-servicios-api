@@ -48,13 +48,20 @@ class FoliosController extends Controller
             'usuarioCreador'
         ]);
 
-        $args['activo'] = 1;
-        $args['fechaAbre'] = date('Y-m-d H:i:s');
-        $args['estatus_id'] = \App\Estatus::$CREADO;
+        $args = $this->setDefaults($args);
 
         $folio = Folio::create($args);
 
         return HttpResponse::created(compact('folio'));
+    }
+
+    public function setDefaults($args)
+    {
+        $args['activo'] = 1;
+        $args['fechaAbre'] = date('Y-m-d H:i:s');
+        $args['estatus_id'] = \App\Estatus::$CREADO;
+
+        return $args;
     }
 
     public function show($id)
@@ -84,6 +91,15 @@ class FoliosController extends Controller
             return HttpResponse::notFound();
         }
 
+        $folio = $this->setUpdatedValues($request, $folio);
+
+        $folio->save();
+
+        return HttpResponse::ok(compact('folio'));
+    }
+
+    public function setUpdatedValues($request, $folio)
+    {
         $folio->total = $request->total;
         $folio->marca_id = $request->marca_id;
         $folio->asignadoA = $request->asignadoA;
@@ -96,9 +112,7 @@ class FoliosController extends Controller
         $folio->servicio_id = $request->servicio_id;
         $folio->tipoEquipo_id = $request->tipoEquipo_id;
 
-        $folio->save();
-
-        return HttpResponse::ok(compact('folio'));
+        return $folio;
     }
 
     public function destroy($id)
@@ -109,7 +123,7 @@ class FoliosController extends Controller
             return HttpResponse::notFound();
         }
 
-        $folio->activo = 0;
+        $folio->setDisabled();
 
         $folio->save();
 
