@@ -59,11 +59,7 @@ class ServiciosController extends Controller
             return HttpResponse::notFound();
         }
 
-        $servicio->precio = $request->precio;
-        $servicio->descripcion = $request->descripcion;
-        $servicio->observaciones = $request->observaciones;
-        $servicio->tiempoPromedio = $request->tiempoPromedio;
-        
+        $servicio = $this->setUpdatedValues($request, $servicio);
         $servicio->save();
 
         return HttpResponse::ok(compact('servicio'));
@@ -77,10 +73,19 @@ class ServiciosController extends Controller
             return HttpResponse::notFound();
         }
 
-        $servicio->enabled = 0;
-
+        $servicio->setDisabled();
         $servicio->save();
 
         return HttpResponse::ok(compact('servicio'));
+    }
+
+    public function setUpdatedValues($request, $servicio)
+    {
+        $servicio->precio = $request->precio;
+        $servicio->descripcion = $request->descripcion;
+        $servicio->observaciones = $request->observaciones;
+        $servicio->tiempoPromedio = $request->tiempoPromedio;
+
+        return $servicio;
     }
 }

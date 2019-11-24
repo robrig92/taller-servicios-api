@@ -56,8 +56,7 @@ class MarcasController extends Controller
             return HttpResponse::notFound();
         }
 
-        $marca->marca = $request->marca;
-        
+        $marca = $this->setUpdatedValues($request, $marca);
         $marca->save();
 
         return HttpResponse::ok(compact('marca'));
@@ -71,10 +70,16 @@ class MarcasController extends Controller
             return HttpResponse::notFound();
         }
 
-        $marca->enabled = 0;
-
+        $marca->setDisabled();
         $marca->save();
 
         return HttpResponse::ok(compact('marca'));
+    }
+
+    public function setUpdatedValues($request, $marca)
+    {
+        $marca->marca = $request->marca;
+
+        return $marca;
     }
 }

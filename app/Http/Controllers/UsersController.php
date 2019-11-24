@@ -27,32 +27,6 @@ class UsersController extends Controller
         return HttpResponse::ok(compact('usuarios'));
     }
 
-    /**
-     * Store a file into the path.
-     *
-     * @param  Request $request
-     * @param  string $path
-     * @return void
-     */
-    protected function fileUpload($request, $path) {
-        if (!$request->hasFile('imagePerfil')) {
-            return '';
-        }
-        
-        $imagenPerfil = $request->imagePerfil->store($path);
-        return $imagenPerfil;
-    }
-
-    /**
-     * Deletes a file.
-     *
-     * @param  string $path
-     * @return void
-     */
-    protected function fileDelete($path) {
-        Storage::delete($path);
-    }
-
     public function store(Request $request)
     {
         $args = $request->only([
@@ -64,10 +38,7 @@ class UsersController extends Controller
         ]);
         $args['hashId'] = HashHelper::hashId();
         $args['password'] = Hash::make($request->password);
-
-        $path = $this->fileUpload($request, 'public/images/users/profile');
-        empty($path) ? : $args['imagenPerfil'] = $path;
-
+        $args = $this->handleIncomingFile($request, $args);
         $usuario = User::create($args);
 
         return HttpResponse::created(compact('usuario'));
@@ -92,22 +63,37 @@ class UsersController extends Controller
             return HttpResponse::notFound();
         }
 
-        // Uploading file.
+        $usuario = $this->handleIncomingFile($request, $usuario);
+        $usuario = $this->setUpdatedValues($request, $usuario);
+        $usuario->save();
+
+        return HttpResponse::ok(compact('usuario'));
+    }
+
+    public function setUpdatedValues($request, $usuario)
+    {
+        $usuario->nombre = $request->nombre;
+        $usuario->rol_id = $request->rol_id;
+        $usuario->telefono = $request->telefono;
+        !isset($request->password) ?: $usuario->password = Hash::make($request->password);
+
+        return $usuario;
+    }
+
+    public function handleIncomingFile($request, $usuario)
+    {
         $path = $this->fileUpload($request, 'public/images/users/profile');
-        
-        if (!empty($path)) {
+
+        if (is_array($usuario)) {
+            empty($path) ? : $usuario['imagenPerfil'] = $path;
+        }
+
+        if ($usuario instanceof User && $path) {
             $this->fileDelete($usuario->imagenPerfil);
             $usuario->imagenPerfil = $path;
         }
 
-        $usuario->nombre = $request->nombre;
-        $usuario->rol_id = $request->rol_id;
-        $usuario->telefono = $request->telefono;
-        !isset($request->password) ? : $usuario->password = Hash::make($request->password);
-
-        $usuario->save();
-
-        return HttpResponse::ok(compact('usuario'));
+        return $usuario;
     }
 
     public function destroy($hashId)
@@ -119,10 +105,37 @@ class UsersController extends Controller
         }
 
         $this->fileDelete($usuario->imagenPerfil);
-
         $usuario->delete();
 
         return HttpResponse::ok(compact('usuario'));
+    }
+
+    /**
+     * Store a file into the path.
+     *
+     * @param  Request $request
+     * @param  string $path
+     * @return void
+     */
+    protected function fileUpload($request, $path)
+    {
+        if (!$request->hasFile('imagePerfil')) {
+            return '';
+        }
+
+        $imagenPerfil = $request->imagePerfil->store($path);
+        return $imagenPerfil;
+    }
+
+    /**
+     * Deletes a file.
+     *
+     * @param  string $path
+     * @return void
+     */
+    protected function fileDelete($path)
+    {
+        Storage::delete($path);
     }
 
     /**

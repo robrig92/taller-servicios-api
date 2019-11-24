@@ -31,9 +31,8 @@ class TipoEquiposController extends Controller
             'enabled',
             'usuarioCreador'
         ]);
-        
-        $args['hashId'] = HashHelper::hashId();
 
+        $args['hashId'] = HashHelper::hashId();
         $tipoEquipo = TipoEquipo::create($args);
 
         return HttpResponse::created(compact('tipoEquipo'));
@@ -58,8 +57,7 @@ class TipoEquiposController extends Controller
             return HttpResponse::notFound();
         }
 
-        $tipoEquipo->tipo = $request->tipo;
-        
+        $tipoEquipo = $this->serUpdatedValues($request, $tipoEquipo);
         $tipoEquipo->save();
 
         return HttpResponse::ok(compact('tipoEquipo'));
@@ -73,10 +71,16 @@ class TipoEquiposController extends Controller
             return HttpResponse::notFound();
         }
 
-        $tipoEquipo->enabled = 0;
-
+        $tipoEquipo->setDisabled();
         $tipoEquipo->save();
 
         return HttpResponse::ok(compact('tipoEquipo'));
+    }
+
+    public function setUpdatedValues($request, $tipoEquipo)
+    {
+        $tipoEquipo->tipo = $request->tipo;
+
+        return $tipoEquipo;
     }
 }

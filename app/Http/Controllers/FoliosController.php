@@ -49,7 +49,6 @@ class FoliosController extends Controller
         ]);
 
         $args = $this->setDefaults($args);
-
         $folio = Folio::create($args);
 
         return HttpResponse::created(compact('folio'));
@@ -92,7 +91,6 @@ class FoliosController extends Controller
         }
 
         $folio = $this->setUpdatedValues($request, $folio);
-
         $folio->save();
 
         return HttpResponse::ok(compact('folio'));
@@ -124,7 +122,6 @@ class FoliosController extends Controller
         }
 
         $folio->setDisabled();
-
         $folio->save();
 
         return HttpResponse::ok(compact('folio'));

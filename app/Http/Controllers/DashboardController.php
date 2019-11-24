@@ -21,9 +21,7 @@ class DashboardController extends Controller
     public function counts()
     {
         $folios = Folio::active()->count();
-
         $clientes = Cliente::enabled()->count();
-
         $empresas = Empresa::enabled()->count();
 
         return HttpResponse::ok(compact(['folios', 'clientes', 'empresas']));

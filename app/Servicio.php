@@ -37,4 +37,9 @@ class Servicio extends Model
     {
         return $query->where('enabled', 1) ;
     }
+
+    public function setDisabled()
+    {
+        $this->enabled = 0;
+    }
 }

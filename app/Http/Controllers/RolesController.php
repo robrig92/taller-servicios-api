@@ -39,9 +39,8 @@ class RolesController extends Controller
             'usuarioCreador',
             'nombre'
         ]);
-        
-        $args['hashId'] = HashHelper::hashId();
 
+        $args['hashId'] = HashHelper::hashId();
         $rol = Rol::create($args);
 
         return HttpResponse::created(compact('rol'));
@@ -80,7 +79,6 @@ class RolesController extends Controller
         }
 
         $rol->nombre = $request->nombre;
-        
         $rol->save();
 
         return HttpResponse::ok(compact('rol'));
@@ -100,10 +98,8 @@ class RolesController extends Controller
             return HttpResponse::notFound();
         }
 
-        $rol->enabled = 0;
-        
+        $rol->setDisabled();
         $rol->permisos()->detach();
-        
         $rol->save();
 
         return HttpResponse::ok(compact('rol'));
@@ -126,7 +122,6 @@ class RolesController extends Controller
         }
 
         $rol->permisos()->attach($permiso);
-
         $rol = Rol::with(['permisos'])->find($id);
 
         return HttpResponse::created(compact('rol'));
@@ -149,7 +144,6 @@ class RolesController extends Controller
         }
 
         $rol->permisos()->detach($permisoId);
-
         $rol = Rol::with(['permisos'])->find($id);
 
         return HttpResponse::ok(compact('rol'));

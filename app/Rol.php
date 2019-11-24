@@ -45,4 +45,9 @@ class Rol extends Model
     {
         return $this->belongsToMany('App\Permiso', 'rol_permiso', 'rol_id', 'permiso_id');
     }
+
+    public function setDisabled()
+    {
+        $this->enabled = 0;
+    }
 }
